@@ -4,7 +4,7 @@
   - _win_
   - _mac-os_
 
-**no extra dependencies needed
+**no extra dependencies needed**
 
 
 **Example** _adding arguments_
