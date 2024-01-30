@@ -15,7 +15,7 @@
     arg_add(args, 'a', "add", "adds a password to the database", 1);
 ```
 
-**Example** _parsing _arguments_
+**Example** _parsing arguments_
 ```c
     result_set_t parsed_arguments;
     res_init(parsed_arguments);
