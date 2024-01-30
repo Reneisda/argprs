@@ -37,21 +37,40 @@ arg_add(arguments_t arg, char short_opt, char* long_opt, char* desc, uint8_t par
 }
 
 void
-arg_parse(arguments_t arg, result_set_t result_set, int argc, char** argv) {
+arg_parse(arguments_t arg, result_set_t result_set, int argc, char** argv) {        // TODO add unknown argument exception
     int arg_index = 0;
     for (int i = 0; i < argc; ++i) {
-        if (strlen(argv[i]) <= 1 || argv[i][0] != '-') {    // is argument?
+        if (strlen(argv[i]) <= 1 || argv[i][0] != '-') {    // is no argument?
             continue;
         }
         if (argv[i][1] == '-' && strlen(argv[i]) > 2) {     // long opt?
-            // parse long opt?
+            for (int j = 0; j < arg->size; ++j) {
+                if (strcmp(arg->long_option[j], &argv[i][2]) == 0) {
+                    res_add_argument(result_set, arg->short_option[j], arg_index);
+                    for (int k = 0; k < arg->parameters[j]; ++k) {
+                        if (arg->parameters[j] ==
+                            result_set->parameter_size[arg_index]) {      // got all parameters for that argument
+                            break;
+                        }
+
+                        if (i + k + 1 >= argc || argv[i + k + 1][0] == '-') {
+                            fprintf(stderr, "Argument needs at least %d parameters\n", arg->parameters[j]);
+                            exit(1);
+                        }
+                        res_add_parameter(result_set, argv[i + k + 1], arg_index);
+                    }
+                    ++arg_index;
+                    i += arg->parameters[j];
+                }
+            }
+
         }
-        else {
-            for (int j = 0; j < arg->size; ++j) {               // short opt?
+        else {                                                  // short opt?
+            for (int j = 0; j < arg->size; ++j) {
                 if (arg->short_option[j] == argv[i][1]) {
                     res_add_argument(result_set, arg->short_option[j], arg_index);
                     for (int k = 0; k < arg->parameters[j]; ++k) {
-                        if (arg->parameters[j] == result_set->parameter_size[arg_index]) {      // done for that agument
+                        if (arg->parameters[j] == result_set->parameter_size[arg_index]) {      // got all parameters for that argument
                             break;
                         }
 
@@ -70,24 +89,13 @@ arg_parse(arguments_t arg, result_set_t result_set, int argc, char** argv) {
     }
 }
 
-char
-long_to_short_opt(arguments_t arg, char* long_opt) {   //TOBE optimise
-    for (int i = 0; i < arg->size; ++i) {
-        if (strcmp(arg->long_option[i], long_opt) == 0) {
-            return arg->short_option[i];
-        }
-    }
-    return '\0';
-}
-
-
 void
 arg_print_help(arguments_t arg) {
     arg_print_program_version(arg);
     for (int i = 0; i < arg->size; ++i) {
         fprintf(stdout, "[-%c]\t", arg->short_option[i]);
         fprintf(stdout, "[--%s]\t", arg->long_option[i]);
-        fprintf(stdout, "params:%d ", arg->parameters[i]);
+        fprintf(stdout, "params:%d\t", arg->parameters[i]);
         fprintf(stdout, "\"%s\"\n", arg->description[i]);
     }
 }
