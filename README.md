@@ -10,7 +10,7 @@
 **Example** _adding arguments_
 ```c
     arguments_t args;
-    arg_init(args, "Argparsing", "1.1.2", 4);
+    arg_init(args, "Program_Name", "VERSION", 2);
     arg_add(args, 'h', "help", "prints help", 0);
     arg_add(args, 'a', "add", "adds a password to the database", 1);
 ```
